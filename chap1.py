@@ -37,8 +37,11 @@ torch.manual_seed(42)
 b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
 w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
 
-
 print(b, w)
+
+lr = 0.1
+
+optimizer = optim.SGD([b, w], lr=lr)
 
 n_epochs = 1000
 
@@ -67,17 +70,19 @@ for epoch in range(n_epochs):
 	
 	
 	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
-	lr = 0.1
 	print("b, w =\n", b, w)
 	
 	# Step 4 - Updates parameters using gradients and
 	# the learning rate
+	# No more manual update! with torch.no_grad():
+	# with torch.no_grad():
+	# 	b -= lr * b.grad 
+	# 	w -= lr * w.grad  
+	optimizer.step()
 
-	with torch.no_grad():
-		b -= lr * b.grad 
-		w -= lr * w.grad  
-	
-	b.grad.zero_(), w.grad.zero_()
+
+	# b.grad.zero_(), w.grad.zero_()
+	optimizer.zero_grad()
 
 	print("b_updated, w_updated =\n", b, w)
 

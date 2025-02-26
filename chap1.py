@@ -53,7 +53,7 @@ for epoch in range(n_epochs):
 	
 	loss = (error**2).mean()
 	
-	print(loss)
+	print("loss =\n", loss)
 	
 	
 	# Step 3 - Computes gradients for both "b" and "w" parameters
@@ -61,14 +61,14 @@ for epoch in range(n_epochs):
 	# b_grad = 2 * error.mean()
 	# w_grad = 2 * (x_tensor * error).mean()
 	loss.backward()
-	print(b.grad, w.grad)
+	print("b.grad, w.grad =\n", b.grad, w.grad)
 
 
 	
 	
 	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
 	lr = 0.1
-	print(b, w)
+	print("b, w =\n", b, w)
 	
 	# Step 4 - Updates parameters using gradients and
 	# the learning rate
@@ -79,7 +79,7 @@ for epoch in range(n_epochs):
 	
 	b.grad.zero_(), w.grad.zero_()
 
-	print(b, w)
+	print("b_updated, w_updated =\n", b, w)
 
 
 

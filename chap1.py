@@ -72,8 +72,6 @@ for epoch in range(n_epochs):
 	
 	# Step 4 - Updates parameters using gradients and
 	# the learning rate
-	b -= lr * b.grad 
-	w -= lr * w.grad  
 
 	with torch.no_grad():
 		b -= lr * b.grad 

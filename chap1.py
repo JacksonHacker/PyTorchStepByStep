@@ -32,35 +32,39 @@ w = np.random.randn(1)
 
 print(b, w)
 
-# Step 1 - Computes our model's predicted output - forward pass
-yhat = b + w * x_train 
+n_epochs = 1000
+
+for epoch in range(n_epochs):
+
+	# Step 1 - Computes our model's predicted output - forward pass
+	yhat = b + w * x_train 
 
 
-# Step 2 - Computing the loss
-error = (yhat - y_train)
-
-loss = (error**2).mean()
-
-print(loss)
-
-
-# Step 3 - Computes gradients for both "b" and "w" parameters
-b_grad = 2 * error.mean()
-w_grad = 2 * (x_train * error).mean
-
-print(b_grad, w_grad)
-
-
-# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
-lr = 0.1
-print(b, w)
-
-# Step 4 - Updates parameters using gradients and
-# the learning rate
-b = b - lr * b_grad 
-w = w - lr * w_grad  
-
-print(b, w)
+	# Step 2 - Computing the loss
+	error = (yhat - y_train)
+	
+	loss = (error**2).mean()
+	
+	print(loss)
+	
+	
+	# Step 3 - Computes gradients for both "b" and "w" parameters
+	b_grad = 2 * error.mean()
+	w_grad = 2 * (x_train * error).mean
+	
+	print(b_grad, w_grad)
+	
+	
+	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
+	lr = 0.1
+	print(b, w)
+	
+	# Step 4 - Updates parameters using gradients and
+	# the learning rate
+	b = b - lr * b_grad 
+	w = w - lr * w_grad  
+	
+	print(b, w)
 
 
 

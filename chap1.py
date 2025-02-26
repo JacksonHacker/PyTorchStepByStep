@@ -57,10 +57,13 @@ for epoch in range(n_epochs):
 	
 	
 	# Step 3 - Computes gradients for both "b" and "w" parameters
-	b_grad = 2 * error.mean()
-	w_grad = 2 * (x_train * error).mean
-	
-	print(b_grad, w_grad)
+	# No more manual computation of gradients!
+	# b_grad = 2 * error.mean()
+	# w_grad = 2 * (x_tensor * error).mean()
+	loss.backward()
+	print(b.grad, w.grad)
+
+
 	
 	
 	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
@@ -69,8 +72,14 @@ for epoch in range(n_epochs):
 	
 	# Step 4 - Updates parameters using gradients and
 	# the learning rate
-	b = b - lr * b_grad 
-	w = w - lr * w_grad  
+	b -= lr * b.grad 
+	w -= lr * w.grad  
+
+	with torch.no_grad():
+		b -= lr * b.grad 
+		w -= lr * w.grad  
+	
+	b.grad.zero_(), w.grad.zero_()
 	
 	print(b, w)
 

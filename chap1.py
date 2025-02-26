@@ -45,11 +45,11 @@ n_epochs = 1000
 for epoch in range(n_epochs):
 
 	# Step 1 - Computes our model's predicted output - forward pass
-	yhat = b + w * x_train 
+	yhat = b + w * x_train_tensor
 
 
 	# Step 2 - Computing the loss
-	error = (yhat - y_train)
+	error = (yhat - y_train_tensor)
 	
 	loss = (error**2).mean()
 	
@@ -80,7 +80,7 @@ for epoch in range(n_epochs):
 		w -= lr * w.grad  
 	
 	b.grad.zero_(), w.grad.zero_()
-	
+
 	print(b, w)
 
 

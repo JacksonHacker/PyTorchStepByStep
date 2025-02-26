@@ -25,10 +25,18 @@ val_idx = idx[int(N*.8):]
 x_train, y_train = x[train_idx], y[train_idx]
 x_val, y_val = x[val_idx], y[val_idx]
 
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+x_train_tensor = torch.as_tensor(x_train).float().to(device)
+y_train_tensor = torch.as_tensor(y_train).float().to(device)
+
+
 # Step 0 - Initializes parameters "b" and "w" randomly
-np.random.seed(42)
-b = np.random.randn(1)
-w = np.random.randn(1)
+torch.manual_seed(42)
+b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+
 
 print(b, w)
 

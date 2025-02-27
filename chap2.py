@@ -54,11 +54,26 @@ x_val, y_val = x[val_idx], y[val_idx]
 
 '''Data Preparation'''
 
+class CustomDataset(Dataset):
+	def __init__(self, x_tensor, y_tensor):
+		self.x = x_tensor  
+		self.y = y_tensor  
+
+	def __getitem__(self, index):
+		return (self.x[index], self.y[index])
+
+	def __len__(self):
+		return len(self.x)
+
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-x_train_tensor = torch.as_tensor(x_train).float().to(device)
-y_train_tensor = torch.as_tensor(y_train).float().to(device)
+x_train_tensor = torch.as_tensor(x_train).float()
+y_train_tensor = torch.as_tensor(y_train).float()
 
+train_data = CustomDataset(x_train_tensor, y_train_tensor)
+
+print("train_data[0]:\n", train_data[0])
 
 '''Model Configuration'''
 

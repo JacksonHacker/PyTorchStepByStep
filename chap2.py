@@ -13,6 +13,27 @@ import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 
 
+def make_train_step_fn(model, loss_fn, optimizer):
+	def perform_train_step_fn(x, y):
+		model.train()
+
+		yhat = model(x)
+
+		loss = loss_fn(yhat, y)
+		print("loss =\n", loss)
+		print("numpy of loss =\n", loss.item())
+
+		loss.backward()
+
+		print("b, w =\n", model.state_dict())
+		optimizer.step()
+		optimizer.zero_grad()
+		print("b_updated, w_updated =\n", model.state_dict())
+
+		return loss.item()
+
+	return perform_train_step_fn
+
 true_b = 1
 true_w = 2
 N = 100
@@ -57,53 +78,17 @@ optimizer = optim.SGD(model.parameters(), lr=lr)
 
 loss_fn = nn.MSELoss(reduction='mean')
 
+train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
 
 '''Model Training'''
 
 n_epochs = 1000
 
+losses = []
+
 for epoch in range(n_epochs):
 
-	model.train()
-
-	# Step 1 - Computes our model's predicted output - forward pass
-	yhat = model(x_train_tensor)
-
-
-	# Step 2 - Computing the loss
-	# error = (yhat - y_train_tensor)
-	# loss = (error**2).mean()
-	loss = loss_fn(yhat, y_train_tensor)
-	
-	print("loss =\n", loss)
-	print("numpy of loss =\n", loss.item())
-	
-	
-	# Step 3 - Computes gradients for both "b" and "w" parameters
-	# No more manual computation of gradients!
-	# b_grad = 2 * error.mean()
-	# w_grad = 2 * (x_tensor * error).mean()
-	loss.backward()
-
-
-
-	
-	
-	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
-	print("b, w =\n", model.state_dict())
-	
-	# Step 4 - Updates parameters using gradients and
-	# the learning rate
-	# No more manual update! with torch.no_grad():
-	# with torch.no_grad():
-	# 	b -= lr * b.grad 
-	# 	w -= lr * w.grad  
-	optimizer.step()
-
-
-	# b.grad.zero_(), w.grad.zero_()
-	optimizer.zero_grad()
-
-	print("b_updated, w_updated =\n", model.state_dict())
+	loss = train_step_fn(x_train_tensor, y_train_tensor)
+	losses.append(loss)
 
 

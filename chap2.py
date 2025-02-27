@@ -43,42 +43,66 @@ x = np.random.rand(N, 1)
 epsilon = (.1 * np.random.randn(N, 1))
 y = true_b + true_w * x + epsilon
 
-idx = np.arange(N)
-np.random.shuffle(idx)
+# idx = np.arange(N)
+# np.random.shuffle(idx)
 
-train_idx = idx[:int(N*.8)]
-val_idx = idx[int(N*.8):]
+# train_idx = idx[:int(N*.8)]
+# val_idx = idx[int(N*.8):]
 
-x_train, y_train = x[train_idx], y[train_idx]
-x_val, y_val = x[val_idx], y[val_idx]
+# x_train, y_train = x[train_idx], y[train_idx]
+# x_val, y_val = x[val_idx], y[val_idx]
 
 '''Data Preparation'''
 
-class CustomDataset(Dataset):
-	def __init__(self, x_tensor, y_tensor):
-		self.x = x_tensor  
-		self.y = y_tensor  
+# class CustomDataset(Dataset):
+# 	def __init__(self, x_tensor, y_tensor):
+# 		self.x = x_tensor  
+# 		self.y = y_tensor  
 
-	def __getitem__(self, index):
-		return (self.x[index], self.y[index])
+# 	def __getitem__(self, index):
+# 		return (self.x[index], self.y[index])
 
-	def __len__(self):
-		return len(self.x)
+# 	def __len__(self):
+# 		return len(self.x)
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-x_train_tensor = torch.as_tensor(x_train).float()
-y_train_tensor = torch.as_tensor(y_train).float()
+# x_train_tensor = torch.as_tensor(x_train).float()
+# y_train_tensor = torch.as_tensor(y_train).float()
 
-train_data = CustomDataset(x_train_tensor, y_train_tensor)
+# train_data = CustomDataset(x_train_tensor, y_train_tensor)
 
-print("train_data[0]:\n", train_data[0])
+# print("train_data[0]:\n", train_data[0])
+
+# train_loader = DataLoader(
+# 	dataset=train_data, 
+# 	batch_size=16, 
+# 	shuffle=True)
+
+torch.manual_seed(13)
+
+x_tensor = torch.as_tensor(x).float()
+y_tensor = torch.as_tensor(y).float()
+
+# Builds dataset containing ALL data points 
+dataset = TensorDataset(x_tensor, y_tensor)
+
+# Perform the split 
+ratio = .8
+n_total = len(dataset)
+n_train = int(n_total * ratio)
+n_val = n_total - n_train
+train_data, val_data = random_split(dataset, [n_train, n_val])
 
 train_loader = DataLoader(
 	dataset=train_data, 
 	batch_size=16, 
 	shuffle=True)
+
+val_loader = DataLoader(
+	dataset=val_data,
+	batch_size=16)
 
 
 '''Model Configuration'''

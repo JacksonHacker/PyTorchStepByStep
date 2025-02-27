@@ -6,13 +6,13 @@ import torch.optim as optim
 import torch.nn as nn
 from torchviz import make_dot
 
-class ManualLinearRegression(nn.Module):
-	def __init__(self):
-		super().__init__()
-		self.linear = nn.Linear(1, 1)
+# class ManualLinearRegression(nn.Module):
+# 	def __init__(self):
+# 		super().__init__()
+# 		self.linear = nn.Linear(1, 1)
 
-	def forward(self, x):
-		return self.linear(x)
+# 	def forward(self, x):
+# 		return self.linear(x)
 
 
 true_b = 1
@@ -45,7 +45,10 @@ torch.manual_seed(42)
 # b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
 # w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
 # print(b, w)
-model = ManualLinearRegression().to(device)
+# model = ManualLinearRegression().to(device)
+model = nn.Sequential()
+model.add_module('layer1', nn.Linear(1, 1))
+model.to(device)
 
 lr = 0.1
 

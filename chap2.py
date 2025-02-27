@@ -93,6 +93,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # 	batch_size=16, 
 # 	shuffle=True)
 
+# 1. 控制数据集划分的随机性
+# 2. 控制数据加载时的乱序行为
 torch.manual_seed(13)
 
 x_tensor = torch.as_tensor(x).float()

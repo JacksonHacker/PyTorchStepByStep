@@ -33,12 +33,15 @@ val_idx = idx[int(N*.8):]
 x_train, y_train = x[train_idx], y[train_idx]
 x_val, y_val = x[val_idx], y[val_idx]
 
+'''Data Preparation'''
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 x_train_tensor = torch.as_tensor(x_train).float().to(device)
 y_train_tensor = torch.as_tensor(y_train).float().to(device)
 
+
+'''Model Configuration'''
 
 # Step 0 - Initializes parameters "b" and "w" randomly
 torch.manual_seed(42)
@@ -55,6 +58,8 @@ lr = 0.1
 optimizer = optim.SGD(model.parameters(), lr=lr)
 
 loss_fn = nn.MSELoss(reduction='mean')
+
+'''Model Training'''
 
 n_epochs = 1000
 

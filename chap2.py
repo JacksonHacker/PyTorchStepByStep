@@ -81,9 +81,6 @@ train_loader = DataLoader(
 	shuffle=True)
 
 
-
-
-
 '''Model Configuration'''
 
 # Step 0 - Initializes parameters "b" and "w" randomly
@@ -106,23 +103,29 @@ train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
 
 '''Model Training'''
 
-n_epochs = 1000
+# Helper function
+def mini_batch(device, data_loader, step_fn):
+	mini_batch_losses = []
+
+	for x_batch, y_batch in data_loader:
+
+		x_batch = x_batch.to(device)
+		y_batch = y_batch.to(device)
+
+		mini_batch_loss = step_fn(x_batch, y_batch)
+		mini_batch_losses.append(mini_batch_loss)
+	
+	loss = np.mean(mini_batch_losses)
+
+	return loss 
+
+n_epochs = 200
 
 losses = []
 
 for epoch in range(n_epochs):
 
-	mini_batch_losses = []
-
-	for x_batch, y_batch in train_loader:
-
-		x_batch = x_batch.to(device)
-		y_batch = y_batch.to(device)
-
-		mini_batch_loss = train_step_fn(x_batch, y_batch)
-		mini_batch_losses.append(mini_batch_loss)
-
-	loss = np.mean(mini_batch_losses)
+	loss = mini_batch(device, train_loader, train_step_fn)
 	losses.append(loss)
 
 

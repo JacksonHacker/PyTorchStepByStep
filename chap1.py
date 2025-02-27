@@ -6,6 +6,15 @@ import torch.optim as optim
 import torch.nn as nn
 from torchviz import make_dot
 
+class ManualLinearRegression(nn.Module):
+	def __init__(self):
+		super().__init__()
+		self.b = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
+		self.w = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
+
+	def forward(self, x):
+		return self.b + self.w * x
+
 
 true_b = 1
 true_w = 2
@@ -34,29 +43,34 @@ y_train_tensor = torch.as_tensor(y_train).float().to(device)
 
 # Step 0 - Initializes parameters "b" and "w" randomly
 torch.manual_seed(42)
-b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
-w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
-
-print(b, w)
+# b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# print(b, w)
+model = ManualLinearRegression().to(device)
 
 lr = 0.1
 
-optimizer = optim.SGD([b, w], lr=lr)
+optimizer = optim.SGD(model.parameters(), lr=lr)
+
+loss_fn = nn.MSELoss(reduction='mean')
 
 n_epochs = 1000
 
 for epoch in range(n_epochs):
 
+	model.train()
+
 	# Step 1 - Computes our model's predicted output - forward pass
-	yhat = b + w * x_train_tensor
+	yhat = model(x_train_tensor)
 
 
 	# Step 2 - Computing the loss
-	error = (yhat - y_train_tensor)
-	
-	loss = (error**2).mean()
+	# error = (yhat - y_train_tensor)
+	# loss = (error**2).mean()
+	loss = loss_fn(yhat, y_train_tensor)
 	
 	print("loss =\n", loss)
+	print("numpy of loss =\n", loss.item())
 	
 	
 	# Step 3 - Computes gradients for both "b" and "w" parameters
@@ -64,13 +78,13 @@ for epoch in range(n_epochs):
 	# b_grad = 2 * error.mean()
 	# w_grad = 2 * (x_tensor * error).mean()
 	loss.backward()
-	print("b.grad, w.grad =\n", b.grad, w.grad)
+
 
 
 	
 	
 	# Sets learning rate - this is "eta" ~ the "n"-like Greek letter
-	print("b, w =\n", b, w)
+	print("b, w =\n", model.state_dict())
 	
 	# Step 4 - Updates parameters using gradients and
 	# the learning rate
@@ -84,7 +98,7 @@ for epoch in range(n_epochs):
 	# b.grad.zero_(), w.grad.zero_()
 	optimizer.zero_grad()
 
-	print("b_updated, w_updated =\n", b, w)
+	print("b_updated, w_updated =\n", model.state_dict())
 
 
 

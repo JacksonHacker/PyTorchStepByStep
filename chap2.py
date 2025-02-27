@@ -139,6 +139,13 @@ loss_fn = nn.MSELoss(reduction='mean')
 train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
 val_step_fn = make_val_step_fn(model, loss_fn)
 
+# Creates a Summary Writer to interface with TensorBoard
+writer = SummaryWriter('runs/simple_linear_regression')
+# Fetches a single mini-batch so we can use add_graph
+x_dummy, y_dummy = next(iter(train_loader))
+writer.add_graph(model, x_dummy.to(device))
+
+
 '''Model Training'''
 
 # Helper function
@@ -172,5 +179,12 @@ for epoch in range(n_epochs):
 		val_loss = mini_batch(device, val_loader, val_step_fn)
 		val_losses.append(val_loss)
 
+	# Records both losses for each epoch under tag "loss
+	writer.add_scalars(main_tag='loss',
+					   tag_scalar_dict={
+					   		'training': loss,
+					   		'validation': val_loss},
+					   global_step=epoch)
 
 
+writer.close()

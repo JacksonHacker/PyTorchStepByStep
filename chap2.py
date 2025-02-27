@@ -34,6 +34,19 @@ def make_train_step_fn(model, loss_fn, optimizer):
 
 	return perform_train_step_fn
 
+def make_val_step_fn(model, loss_fn):
+	def perform_val_step_fn(x, y):
+		model.eval()
+
+		yhat = model(x)
+
+		loss = loss_fn(yhat, y)
+
+		return loss.item()
+
+	return perform_val_step_fn
+
+
 true_b = 1
 true_w = 2
 N = 100
@@ -124,6 +137,7 @@ optimizer = optim.SGD(model.parameters(), lr=lr)
 loss_fn = nn.MSELoss(reduction='mean')
 
 train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
+val_step_fn = make_val_step_fn(model, loss_fn)
 
 '''Model Training'''
 
@@ -146,11 +160,17 @@ def mini_batch(device, data_loader, step_fn):
 n_epochs = 200
 
 losses = []
+val_losses = []
 
 for epoch in range(n_epochs):
 
 	loss = mini_batch(device, train_loader, train_step_fn)
 	losses.append(loss)
+
+	# No gradients in validation!
+	with torch.no_grad():
+		val_loss = mini_batch(device, val_loader, val_step_fn)
+		val_losses.append(val_loss)
 
 
 

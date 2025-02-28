@@ -178,7 +178,88 @@ class StepByStep(object):
 		plt.tight_layout()
 		return fig 
 
-	
+	def add_graph(self):
+		if self.train_loader and self.writer:
+			# Fetches a single mini-batch so we can use add_graph
+			x_dummy, y_dummy = next(iter(self.train_loader))
+			self.writer.add_graph(self.model, x_dummy.to(self.device))
+
+
+#############################################
+'''Data Generation'''
+# data_generation/simple_linear_regression.py
+
+true_b = 1
+true_w = 2
+N = 100
+
+np.random.seed(42)
+x = np.random.rand(N, 1)
+epsilon = (.1 * np.random.randn(N, 1))
+y = true_b + true_w * x + epsilon
+
+
+#############################################
+'''Data Preparation'''
+# %load data_preparation/v2.py
+
+# 1. 控制数据集划分的随机性
+# 2. 控制数据加载时的乱序行为
+torch.manual_seed(13)
+
+x_tensor = torch.as_tensor(x).float()
+y_tensor = torch.as_tensor(y).float()
+
+# Builds dataset containing ALL data points 
+dataset = TensorDataset(x_tensor, y_tensor)
+
+# Perform the split 
+ratio = .8
+n_total = len(dataset)
+n_train = int(n_total * ratio)
+n_val = n_total - n_train
+train_data, val_data = random_split(dataset, [n_train, n_val])
+
+train_loader = DataLoader(
+	dataset=train_data, 
+	batch_size=16, 
+	shuffle=True)
+
+val_loader = DataLoader(
+	dataset=val_data,
+	batch_size=16)
+
+#############################################
+'''Model Configuration'''
+# writefile model_configuration/v4.py
+
+torch.manual_seed(42)
+# b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# print(b, w)
+# model = ManualLinearRegression().to(device)
+model = nn.Sequential()
+model.add_module('layer1', nn.Linear(1, 1))
+
+
+lr = 0.1
+
+optimizer = optim.SGD(model.parameters(), lr=lr)
+
+loss_fn = nn.MSELoss(reduction='mean')
+
+# train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
+# val_step_fn = make_val_step_fn(model, loss_fn)
+
+# # Creates a Summary Writer to interface with TensorBoard
+# writer = SummaryWriter('runs/simple_linear_regression')
+# # Fetches a single mini-batch so we can use add_graph
+# x_dummy, y_dummy = next(iter(train_loader))
+# writer.add_graph(model, x_dummy.to(device))
+
+
+#############################################
+'''Model Training'''
 
 
 

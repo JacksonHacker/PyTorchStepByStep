@@ -29,6 +29,10 @@ class StepByStep(object):
 		self.val_losses = []
 		self.total_epochs = 0
 
+
+		# train_step_fn = make_train_step_fn(model, loss_fn, optimizer)
+		# val_step_fn = make_val_step_fn(model, loss_fn)
+
 		# Note: there are NO ARGS there! It makes use of the class
 		# attributes directly
 		self.train_step_fn = self._make_train_step_fn()
@@ -50,13 +54,35 @@ class StepByStep(object):
 		self.train_loader = train_loader
 		self.val_loader = val_loader
 
+	# writer = SummaryWriter('runs/simple_linear_regression')
 	def set_tensorboard(self, name, folder='runs'):
-		suffix = datatime.datetime.now().strftime('%Y%m%d%H%M%S')
+		suffix = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 		self.writer = SummaryWriter(f'{folder}/{name}_{suffix}')
 
+
+	# def make_train_step_fn(model, loss_fn, optimizer):
+	# 	def perform_train_step_fn(x, y):
+	# 		model.train()
+
+	# 		yhat = model(x)
+
+	# 		loss = loss_fn(yhat, y)
+	# 		print("loss =\n", loss)
+	# 		print("numpy of loss =\n", loss.item())
+
+	# 		loss.backward()
+
+	# 		print("b, w =\n", model.state_dict())
+	# 		optimizer.step()
+	# 		optimizer.zero_grad()
+	# 		print("b_updated, w_updated =\n", model.state_dict())
+
+	# 		return loss.item()
+
+	# 	return perform_train_step_fn
 	def _make_train_step_fn(self):
 		def perform_train_step_fn(x, y):
-			self.model.trian()
+			self.model.train()
 
 			yhat = self.model(x)
 
@@ -71,6 +97,16 @@ class StepByStep(object):
 
 		return perform_train_step_fn
 
+	# def make_val_step_fn(model, loss_fn):
+	# 	def perform_val_step_fn(x, y):
+	# 		model.eval()
+
+	# 		yhat = model(x)
+
+	# 		loss = loss_fn(yhat, y)
+
+	# 		return loss.item()
+	#	return perform_val_step_fn
 	def _make_val_step_fn(self):
 		def perform_val_step_fn(x, y):
 			self.model.eval() 
@@ -83,6 +119,21 @@ class StepByStep(object):
 
 		return perform_val_step_fn
 
+
+	# def mini_batch(device, data_loader, step_fn):
+	# 	mini_batch_losses = []
+
+	# 	for x_batch, y_batch in data_loader:
+
+	# 		x_batch = x_batch.to(device)
+	# 		y_batch = y_batch.to(device)
+
+	# 		mini_batch_loss = step_fn(x_batch, y_batch)
+	# 		mini_batch_losses.append(mini_batch_loss)
+	
+	# 	loss = np.mean(mini_batch_losses)
+
+	# 	return loss 
 	def _mini_batch(self, validation=False):
 		if validation:
 			data_loader = self.val_loader
@@ -119,6 +170,14 @@ class StepByStep(object):
 		for epoch in range(n_epochs):
 			self.total_epochs += 1
 
+			# loss = mini_batch(device, train_loader, train_step_fn)
+			# losses.append(loss)
+
+			# # No gradients in validation!
+			# with torch.no_grad():
+			# 	val_loss = mini_batch(device, val_loader, val_step_fn)
+			# 	val_losses.append(val_loss)
+
 			loss = self._mini_batch(validation=False)
 			self.losses.append(loss) 
 
@@ -126,6 +185,12 @@ class StepByStep(object):
 				val_loss = self._mini_batch(validation=True)
 				self.val_losses.append(val_loss)
 
+
+			# writer.add_scalars(main_tag='loss',
+			# 					tag_scalar_dict={
+			# 		   			'training': loss,
+			# 		   			'validation': val_loss},
+			# 		   			global_step=epoch)
 			if self.writer:
 				scalars = {'training': loss}
 				if val_loss is not None:
@@ -134,9 +199,9 @@ class StepByStep(object):
 				self.writer.add_scalars(main_tag='loss', 
 										tag_scalar_dict = scalars,
 										global_step=epoch)
-
+		# writer.close()
 		if self.writer:
-			slef.writer.flush()
+			self.writer.flush()
 
 	def save_checkpoint(self, filename):
 		checkpoint = {
@@ -178,6 +243,8 @@ class StepByStep(object):
 		plt.tight_layout()
 		return fig 
 
+	# x_dummy, y_dummy = next(iter(train_loader))
+	# writer.add_graph(model, x_dummy.to(device))
 	def add_graph(self):
 		if self.train_loader and self.writer:
 			# Fetches a single mini-batch so we can use add_graph
@@ -257,10 +324,26 @@ loss_fn = nn.MSELoss(reduction='mean')
 # x_dummy, y_dummy = next(iter(train_loader))
 # writer.add_graph(model, x_dummy.to(device))
 
-
 #############################################
 '''Model Training'''
 
+sbs = StepByStep(model, loss_fn, optimizer) # From Model Configuration
+sbs.set_loaders(train_loader, val_loader) # From Data Prepation
+sbs.set_tensorboard('classy')
 
+sbs.train(n_epochs=200)
+
+print("model.state_dict(): ", model.state_dict())
+print("total_epochs: ", sbs.total_epochs)
+
+fig = sbs.plot_losses()
+plt.show()
+
+
+#############################################
+'''Making Predictions'''
+
+new_data = np.array([.5, .3, .7]).reshape(-1, 1)
+predictions = sbs.predict(new_data)
 
 

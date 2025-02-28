@@ -208,8 +208,8 @@ class StepByStep(object):
 			'epoch': self.total_epochs,
 			'model_state_dict': self.model.state_dict(),
 			'optimizer_state_dict': self.optimizer.state_dict(),
-			'loss': self.losses,
-			'val_loss': self.val_losses
+			'loss': [float(loss) for loss in self.losses],
+			'val_loss': [float(v_loss) for v_loss in self.val_losses]
 		}
 
 		torch.save(checkpoint, filename)
@@ -346,4 +346,42 @@ new_data = np.array([.5, .3, .7]).reshape(-1, 1)
 predictions = sbs.predict(new_data)
 print("predictions: \n", predictions)
 
+#############################################
+'''Checkpointing'''
+sbs.save_checkpoint('model_checkpoint.pth')
+
+
+'''Model Configuration'''
+# writefile model_configuration/v4.py
+
+torch.manual_seed(42)
+# b = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# w = torch.randn(1, requires_grad = True, dtype = torch.float, device=device)
+# print(b, w)
+# model = ManualLinearRegression().to(device)
+model = nn.Sequential()
+model.add_module('layer1', nn.Linear(1, 1))
+
+
+lr = 0.1
+
+optimizer = optim.SGD(model.parameters(), lr=lr)
+
+loss_fn = nn.MSELoss(reduction='mean')
+
+print("model state_dict before loading the model: ", model.state_dict())
+
+
+'''Resuming Training'''
+new_sbs = StepByStep(model, loss_fn, optimizer)
+new_sbs.load_checkpoint('model_checkpoint.pth')
+print("model state_dict after loding the model: ", sbs.model.state_dict())
+
+new_sbs.set_loaders(train_loader, val_loader)
+new_sbs.train(n_epochs=50)
+
+fig = new_sbs.plot_losses()
+plt.show()
+
+print("model state_dict after another 50 epochs: ", sbs.model.state_dict())
 

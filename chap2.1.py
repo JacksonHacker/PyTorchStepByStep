@@ -339,11 +339,11 @@ print("total_epochs: ", sbs.total_epochs)
 fig = sbs.plot_losses()
 plt.show()
 
-
 #############################################
 '''Making Predictions'''
 
 new_data = np.array([.5, .3, .7]).reshape(-1, 1)
 predictions = sbs.predict(new_data)
+print("predictions: \n", predictions)
 
 
